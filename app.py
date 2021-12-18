@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy, sqlalchemy
 # from models.Todo import Todo
 from datetime import datetime
 
+from werkzeug.utils import redirect
+
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'
@@ -25,9 +27,7 @@ class Todo(db.Model):
 
 @app.route("/", methods=['POST','GET'])
 def hello_world():
-   if request.method == 'POST':
-      # req_data = request.form['title']
-      # print("req_data-",req_data)
+   if request.method == 'POST':     
       todo = Todo(title=request.form['title'], desc=request.form['desc'])
       db.session.add(todo)
       db.session.commit()
@@ -41,6 +41,25 @@ def show():
    alltodo = Todo.query.all()
    
    return render_template('index.html')
+
+   
+@app.route("/update/<int:sno>")
+def update(sno):
+   sr_up= Todo.query.get(sno)   
+   print(sr_up)
+
+   alltodo = Todo.query.all()
+   
+   return render_template('index.html', alltodos = alltodo)
+
+   
+@app.route("/delete/<int:sno>")
+def delete(sno):
+   del_todo = Todo.query.filter_by(srno = sno) .first()
+   db.session.delete(del_todo)
+   db.session.commit()  
+   return redirect('/')
+  
 
 
 if __name__ == '__main__':
