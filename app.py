@@ -38,24 +38,29 @@ def hello_world():
 
 @app.route("/show")
 def show():
-   alltodo = Todo.query.all()
-   
+   alltodo = Todo.query.all()   
    return render_template('index.html')
 
    
-@app.route("/update/<int:sno>")
+@app.route("/update/<int:sno>",  methods=['POST','GET'])
 def update(sno):
-   sr_up= Todo.query.get(sno)   
-   print(sr_up)
-
-   alltodo = Todo.query.all()
+   if request.method == 'POST':   
+      title=request.form['title']
+      desc=request.form['desc']  
+      sr_up1= Todo.query.filter_by(srno = sno).first()
+      sr_up1.title = title
+      sr_up1.desc = desc
+      db.session.add(sr_up1)
+      db.session.commit()    
+      return redirect('/')
    
-   return render_template('index.html', alltodos = alltodo)
+   sr_up= Todo.query.filter_by(srno = sno).first()
+   return render_template('update.html', sr_up = sr_up)
 
    
 @app.route("/delete/<int:sno>")
 def delete(sno):
-   del_todo = Todo.query.filter_by(srno = sno) .first()
+   del_todo = Todo.query.filter_by(srno = sno).first()
    db.session.delete(del_todo)
    db.session.commit()  
    return redirect('/')
